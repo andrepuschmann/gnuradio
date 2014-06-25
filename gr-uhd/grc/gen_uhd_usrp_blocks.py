@@ -74,6 +74,9 @@ self.\$(id).set_gain(\$gain$(n), $n)
 #if $sourk == "source"
 self.\$(id).set_agc(\$agc$(n), $n)
 #end if
+#if $sourk == "sink"
+self.\$(id).set_csma(\$csma$(n), $n)
+#end if
 	\#if \$ant$(n)()
 self.\$(id).set_antenna(\$ant$(n), $n)
 	\#end if
@@ -89,6 +92,9 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
 	<callback>set_gain(\$gain$(n), $n)</callback>
 	#if $sourk == "source"
 	<callback>set_agc(\$agc$(n), $n)</callback>
+	#end if
+	#if $sourk == "sink"
+	<callback>set_csma(\$csma$(n), $n)</callback>
 	#end if
 	<callback>set_antenna(\$ant$(n), $n)</callback>
 	<callback>set_bandwidth(\$bw$(n), $n)</callback>
@@ -421,6 +427,23 @@ PARAMS_TMPL = """
 	<param>
 		<name>Ch$(n): AGC</name>
 		<key>agc$(n)</key>
+		<value>False</value>
+		<type>bool</type>
+		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
+		<option>
+			<name>Enable</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Disable</name>
+			<key>False</key>
+		</option>
+	</param>
+#end if
+#if $sourk == "sink"
+	<param>
+		<name>Ch$(n): CSMA</name>
+		<key>csma$(n)</key>
 		<value>False</value>
 		<type>bool</type>
 		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
