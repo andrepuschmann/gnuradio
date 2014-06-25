@@ -249,6 +249,8 @@ namespace gr {
                             const std::string &name,
                             size_t chan = 0) = 0;
 
+      virtual void set_csma(bool csma, size_t chan=0) = 0;
+
       /*!
        * Get the actual dboard gain setting.
        * \param chan the channel index 0 to N-1

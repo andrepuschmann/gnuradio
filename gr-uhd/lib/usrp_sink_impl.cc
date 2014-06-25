@@ -203,6 +203,13 @@ namespace gr {
     }
 
     void
+    usrp_sink_impl::set_csma(bool csma, size_t chan)
+    {
+      chan = _stream_args.channels[chan];
+      return _dev->set_csma(csma, chan);
+    }
+
+    void
     usrp_sink_impl::set_gain(double gain, size_t chan)
     {
       _curr_gain[chan] = gain;
