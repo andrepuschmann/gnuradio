@@ -71,6 +71,9 @@ self.\$(id).set_samp_rate(\$samp_rate)
 \#if \$nchan() > $n
 self.\$(id).set_center_freq(\$center_freq$(n), $n)
 self.\$(id).set_gain(\$gain$(n), $n)
+#if $sourk == "source"
+self.\$(id).set_agc(\$agc$(n), $n)
+#end if
 	\#if \$ant$(n)()
 self.\$(id).set_antenna(\$ant$(n), $n)
 	\#end if
@@ -84,6 +87,9 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
 	#for $n in range($max_nchan)
 	<callback>set_center_freq(\$center_freq$(n), $n)</callback>
 	<callback>set_gain(\$gain$(n), $n)</callback>
+	#if $sourk == "source"
+	<callback>set_agc(\$agc$(n), $n)</callback>
+	#end if
 	<callback>set_antenna(\$ant$(n), $n)</callback>
 	<callback>set_bandwidth(\$bw$(n), $n)</callback>
 	#end for
@@ -411,6 +417,23 @@ PARAMS_TMPL = """
 		<type>real</type>
 		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
 	</param>
+#if $sourk == "source"
+	<param>
+		<name>Ch$(n): AGC</name>
+		<key>agc$(n)</key>
+		<value>False</value>
+		<type>bool</type>
+		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
+		<option>
+			<name>Enable</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Disable</name>
+			<key>False</key>
+		</option>
+	</param>
+#end if
 	<param>
 		<name>Ch$(n): Antenna</name>
 		<key>ant$(n)</key>
@@ -473,7 +496,7 @@ if __name__ == '__main__':
 			direction = 'in'
 		else: raise Exception, 'is %s a source or sink?'%file
 
-		params = ''.join([parse_tmpl(PARAMS_TMPL, n=n) for n in range(max_num_channels)])
+		params = ''.join([parse_tmpl(PARAMS_TMPL, n=n, sourk=sourk) for n in range(max_num_channels)])
 		if sourk == 'sink':
 			params += LENTAG_PARAM
 			lentag_arg = LENTAG_ARG
