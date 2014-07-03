@@ -249,7 +249,9 @@ namespace gr {
                             const std::string &name,
                             size_t chan = 0) = 0;
 
-      virtual void set_csma(bool csma, size_t chan=0) = 0;
+      virtual void set_csma_enable(bool enable, size_t mboard=0) = 0;
+      virtual void set_csma_threshold(const uint32_t threshold, size_t mboard=0) = 0;
+      virtual void set_csma_slottime(const uint32_t threshold, size_t mboard=0) = 0;
 
       /*!
        * Get the actual dboard gain setting.

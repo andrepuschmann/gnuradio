@@ -203,10 +203,21 @@ namespace gr {
     }
 
     void
-    usrp_sink_impl::set_csma(bool csma, size_t chan)
+    usrp_sink_impl::set_csma_enable(bool enable, size_t mboard)
     {
-      chan = _stream_args.channels[chan];
-      return _dev->set_csma(csma, chan);
+        _dev->set_csma_enable(enable, mboard);
+    }
+
+    void
+    usrp_sink_impl::set_csma_threshold(const uint32_t threshold, size_t mboard)
+    {
+        _dev->set_csma_threshold(threshold, mboard);
+    }
+
+    void
+    usrp_sink_impl::set_csma_slottime(const uint32_t slottime, size_t mboard)
+    {
+        _dev->set_csma_slottime(slottime, mboard);
     }
 
     void

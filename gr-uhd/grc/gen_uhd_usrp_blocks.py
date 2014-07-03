@@ -75,7 +75,9 @@ self.\$(id).set_gain(\$gain$(n), $n)
 self.\$(id).set_agc(\$agc$(n), $n)
 #end if
 #if $sourk == "sink"
-self.\$(id).set_csma(\$csma$(n), $n)
+self.\$(id).set_csma_enable(\$csma_enable$(n), $n)
+self.\$(id).set_csma_slottime(\$csma_slottime$(n), $n)
+self.\$(id).set_csma_threshold(\$csma_threshold$(n), $n)
 #end if
 	\#if \$ant$(n)()
 self.\$(id).set_antenna(\$ant$(n), $n)
@@ -94,7 +96,9 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
 	<callback>set_agc(\$agc$(n), $n)</callback>
 	#end if
 	#if $sourk == "sink"
-	<callback>set_csma(\$csma$(n), $n)</callback>
+	<callback>set_csma_enable(\$csma_enable$(n), $n)</callback>
+	<callback>set_csma_slottime(\$csma_slottime$(n), $n)</callback>
+	<callback>set_csma_threshold(\$csma_threshold$(n), $n)</callback>
 	#end if
 	<callback>set_antenna(\$ant$(n), $n)</callback>
 	<callback>set_bandwidth(\$bw$(n), $n)</callback>
@@ -324,6 +328,12 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
 	<check>\$num_mboards > 0</check>
 	<check>\$nchan >= \$num_mboards</check>
 	<check>(not \$stream_chans()) or (\$nchan == len(\$stream_chans))</check>
+	#if $sourk == "sink"
+	#for $n in range($max_nchan)
+	<check>\$csma_slottime$(n) >= 0</check>
+	<check>\$csma_threshold$(n) >= 0</check>
+	#end for
+	#end if
 	<$sourk>
 		<name>$direction</name>
 		<type>\$type.type</type>
@@ -442,8 +452,8 @@ PARAMS_TMPL = """
 #end if
 #if $sourk == "sink"
 	<param>
-		<name>Ch$(n): CSMA</name>
-		<key>csma$(n)</key>
+		<name>Ch$(n): CSMA enable</name>
+		<key>csma_enable$(n)</key>
 		<value>False</value>
 		<type>bool</type>
 		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
@@ -455,6 +465,20 @@ PARAMS_TMPL = """
 			<name>Disable</name>
 			<key>False</key>
 		</option>
+	</param>
+	<param>
+		<name>Ch$(n): CSMA Slot Time</name>
+		<key>csma_slottime$(n)</key>
+		<value>0</value>
+		<type>int</type>
+		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Ch$(n): CSMA Threshold</name>
+		<key>csma_threshold$(n)</key>
+		<value>0</value>
+		<type>int</type>
+		<hide>\#if \$nchan() > $n then 'none' else 'all'#</hide>
 	</param>
 #end if
 	<param>
