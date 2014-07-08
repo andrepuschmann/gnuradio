@@ -69,6 +69,7 @@ namespace gr {
         _stream_args(stream_args),
         _nchan(stream_args.channels.size()),
         _stream_now(_nchan == 1 and length_tag_name.empty()),
+        _csma_enable(false),
         _start_time_set(false),
         _length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL : pmt::string_to_symbol(length_tag_name)),
         _nitems_to_send(0),
@@ -205,6 +206,7 @@ namespace gr {
     void
     usrp_sink_impl::set_csma_enable(bool enable, size_t mboard)
     {
+        _csma_enable = enable;
         _dev->set_csma_enable(enable, mboard);
     }
 
@@ -540,6 +542,7 @@ namespace gr {
       // default to send a mid-burst packet
       _metadata.start_of_burst = false;
       _metadata.end_of_burst = false;
+      _metadata.use_cs = _csma_enable;
 
       //collect tags in this work()
       const uint64_t samp0_count = nitems_read(0);
@@ -668,6 +671,10 @@ namespace gr {
 	  // Bursty tx will not use time specs, unless a tx_time tag is also given.
 	  _metadata.has_time_spec = false;
           _metadata.start_of_burst = pmt::to_bool(value);
+          if(pmt::to_bool(value)) {
+              _metadata.use_cs = _csma_enable;
+              _metadata.sifs   = 3200;
+          }
         }
 
         //length_tag found; set the start of burst flag in the metadata
@@ -684,6 +691,8 @@ namespace gr {
           }
           _nitems_to_send = pmt::to_long(value);
           _metadata.start_of_burst = true;
+          _metadata.use_cs = _csma_enable;
+          _metadata.sifs = 3200;
         }
 
         /* II. Bursts that can be on the first OR last sample of a burst
@@ -727,6 +736,7 @@ namespace gr {
           found_eob = true;
           max_count = my_tag_count + 1;
           _metadata.end_of_burst = pmt::to_bool(value);
+          _metadata.use_cs = false;
         }
       } // end foreach
 
