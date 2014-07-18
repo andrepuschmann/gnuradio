@@ -207,7 +207,6 @@ namespace gr {
     usrp_sink_impl::set_csma_enable(bool enable, size_t mboard)
     {
         _csma_enable = enable;
-        _dev->set_csma_enable(enable, mboard);
     }
 
     void
