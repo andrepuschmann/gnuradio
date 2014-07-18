@@ -70,6 +70,7 @@ namespace gr {
         _nchan(stream_args.channels.size()),
         _stream_now(_nchan == 1 and length_tag_name.empty()),
         _csma_enable(false),
+        _slottime(0),
         _start_time_set(false),
         _length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL : pmt::string_to_symbol(length_tag_name)),
         _nitems_to_send(0),
@@ -219,6 +220,7 @@ namespace gr {
     usrp_sink_impl::set_csma_slottime(const uint32_t slottime, size_t mboard)
     {
         _dev->set_csma_slottime(slottime, mboard);
+        _slottime = slottime;
     }
 
     void
@@ -690,8 +692,33 @@ namespace gr {
           }
           _nitems_to_send = pmt::to_long(value);
           _metadata.start_of_burst = true;
+        }
+
+        else if(not pmt::is_null(_length_tag_key) and pmt::equal(key, pmt::mp("csma"))) {
+          if (my_tag_count != samp0_count) {
+            max_count = my_tag_count;
+	    break;
+          }
+	  // enable only if also csma is switched on at device
           _metadata.use_cs = _csma_enable;
-          _metadata.sifs = 3200;
+        }
+
+        else if(not pmt::is_null(_length_tag_key) and pmt::equal(key, pmt::mp("backoffs"))) {
+          if (my_tag_count != samp0_count) {
+            max_count = my_tag_count;
+	    break;
+          }
+	  _metadata.backoffs[0] = pmt::u64vector_ref(value, 0);
+	  _metadata.backoffs[1] = pmt::u64vector_ref(value, 1);
+        }
+
+        else if(not pmt::is_null(_length_tag_key) and pmt::equal(key, pmt::mp("aifsn"))) {
+          if (my_tag_count != samp0_count) {
+            max_count = my_tag_count;
+	    break;
+          }
+	  // FIXME: add option for sifs
+	  _metadata.sifs = pmt::to_uint64(value) * _slottime + 3200;
         }
 
         /* II. Bursts that can be on the first OR last sample of a burst

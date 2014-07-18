@@ -145,6 +145,7 @@ namespace gr {
       ::uhd::tx_metadata_t _metadata;
       double _sample_rate;
       bool _csma_enable;
+      uint32_t _slottime;
 
       ::uhd::time_spec_t _start_time;
       bool _start_time_set;
